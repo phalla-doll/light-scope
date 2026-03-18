@@ -18,13 +18,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
-import { Search, Filter } from "lucide-react"
+import { Search } from "lucide-react"
 import { type AuditItem } from "@/lib/lighthouse-parser"
 
 interface AuditTableProps {
@@ -119,39 +120,22 @@ export function AuditTable({ audits, className }: AuditTableProps) {
 
     return (
         <div className={className}>
-            <div className="mb-4 flex flex-col gap-4 px-4 sm:flex-row lg:px-6">
-                <div className="relative flex-1">
-                    <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                        placeholder="Search audits..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9"
-                    />
-                </div>
-                <div className="flex gap-2">
-                    <Select
-                        value={categoryFilter}
-                        onValueChange={setCategoryFilter}
-                    >
-                        <SelectTrigger className="w-[160px]">
-                            <Filter className="mr-2 size-4" />
-                            <SelectValue placeholder="Category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Categories</SelectItem>
-                            {categories.map((cat) => (
-                                <SelectItem key={cat} value={cat}>
-                                    {cat}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+            <div className="mb-4 flex flex-col gap-4">
+                <div className="flex items-center gap-4">
+                    <div className="relative max-w-70 flex-1">
+                        <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                            placeholder="Search..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-9"
+                        />
+                    </div>
                     <Select
                         value={impactFilter}
                         onValueChange={setImpactFilter}
                     >
-                        <SelectTrigger className="w-[140px]">
+                        <SelectTrigger className="w-35">
                             <SelectValue placeholder="Impact" />
                         </SelectTrigger>
                         <SelectContent>
@@ -162,6 +146,16 @@ export function AuditTable({ audits, className }: AuditTableProps) {
                         </SelectContent>
                     </Select>
                 </div>
+                <Tabs value={categoryFilter} onValueChange={setCategoryFilter}>
+                    <TabsList className="scrollbar-hide w-full justify-start overflow-x-auto">
+                        <TabsTrigger value="all">All</TabsTrigger>
+                        {categories.map((cat) => (
+                            <TabsTrigger key={cat} value={cat}>
+                                {cat}
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+                </Tabs>
             </div>
 
             <div className="rounded-lg border px-4 lg:px-6">
@@ -175,15 +169,6 @@ export function AuditTable({ audits, className }: AuditTableProps) {
                                     onClick={() => handleSort("title")}
                                 >
                                     Audit
-                                </button>
-                            </TableHead>
-                            <TableHead>
-                                <button
-                                    type="button"
-                                    className="flex items-center hover:text-foreground"
-                                    onClick={() => handleSort("category")}
-                                >
-                                    Category
                                 </button>
                             </TableHead>
                             <TableHead className="text-center">
@@ -211,7 +196,7 @@ export function AuditTable({ audits, className }: AuditTableProps) {
                         {sortedAudits.length === 0 ? (
                             <TableRow>
                                 <TableCell
-                                    colSpan={5}
+                                    colSpan={4}
                                     className="h-24 text-center"
                                 >
                                     No audits found matching your filters.
@@ -259,11 +244,6 @@ export function AuditTable({ audits, className }: AuditTableProps) {
                                                 </AccordionContent>
                                             </AccordionItem>
                                         </Accordion>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge variant="outline">
-                                            {audit.category}
-                                        </Badge>
                                     </TableCell>
                                     <TableCell className="text-center">
                                         <Badge
