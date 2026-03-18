@@ -35,11 +35,12 @@ Instead of scanning long audit lists, Light Scope:
   /compare
 
 /components
-  /layout
-  /charts
-  /audit
-  /metrics
-  /filters
+  /ui              # shadcn/ui components (DO NOT modify)
+  /layout          # Layout composites (AppLayout, Sidebar, Topbar)
+  /charts          # Chart composites (ScoreDonutChart, MetricsBarChart)
+  /audit           # Audit composites (AuditCard, AuditTable, IssueGroup)
+  /metrics         # Metrics composites (MetricCard, ScoreBreakdown)
+  /filters         # Filter composites (FilterBar, SearchInput)
 
 /lib
   parser.ts
@@ -50,49 +51,179 @@ Instead of scanning long audit lists, Light Scope:
 
 ---
 
+## UI Principles
+
+- **Shadcn-first**: Always prefer shadcn/ui components before building custom
+- **Composition over creation**: Combine existing components rather than building from scratch
+- **Compound components**: Extend shadcn components for domain-specific needs
+- **Never modify `/ui`**: Copy and customize if needed, but keep originals untouched
+
+---
+
+## Installed Components
+
+All UI components are from shadcn/ui:
+
+| Component       | Use Case                               |
+| --------------- | -------------------------------------- |
+| `card`          | Score cards, metric cards, audit cards |
+| `badge`         | Impact levels (High/Medium/Low)        |
+| `button`        | Actions, navigation                    |
+| `input`         | Search fields                          |
+| `table`         | Audit table with sortable rows         |
+| `tabs`          | View switching (Dashboard/Compare)     |
+| `select`        | Category filters                       |
+| `accordion`     | Expandable audit details               |
+| `separator`     | Layout dividers                        |
+| `sheet`         | Side navigation panel                  |
+| `checkbox`      | Impact toggles                         |
+| `skeleton`      | Loading states                         |
+| `progress`      | Loading progress                       |
+| `switch`        | Dark/light mode toggle                 |
+| `dialog`        | Report detail modals                   |
+| `tooltip`       | Info tooltips                          |
+| `scroll-area`   | Scrollable containers                  |
+| `dropdown-menu` | Action menus                           |
+
+---
+
+## Composition Patterns
+
+### Basic Composition
+
+```tsx
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+
+function AuditCard({ audit }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{audit.title}</CardTitle>
+        <Badge variant={getImpactVariant(audit.impact)}>{audit.impact}</Badge>
+      </CardHeader>
+      <CardContent>{audit.description}</CardContent>
+    </Card>
+  )
+}
+```
+
+### Compound Component Pattern
+
+```tsx
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card"
+
+function ScoreCard({ score, label, delta }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{label}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <span className="text-4xl font-bold">{score}</span>
+      </CardContent>
+      {delta && <CardFooter>{delta}</CardFooter>}
+    </Card>
+  )
+}
+```
+
+### Filter Bar Composition
+
+```tsx
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from "@/components/ui/button"
+
+function FilterBar() {
+  return (
+    <div className="flex gap-4">
+      <Input placeholder="Search audits..." />
+      <Select>
+        <SelectTrigger>
+          <SelectValue placeholder="Category" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="performance">Performance</SelectItem>
+          <SelectItem value="accessibility">Accessibility</SelectItem>
+        </SelectContent>
+      </Select>
+      <div className="flex gap-2">
+        <Checkbox id="high" /> <label htmlFor="high">High</label>
+        <Checkbox id="medium" /> <label htmlFor="medium">Medium</label>
+        <Checkbox id="low" /> <label htmlFor="low">Low</label>
+      </div>
+    </div>
+  )
+}
+```
+
+### Adding New Components
+
+Before creating a new component, check if shadcn provides it:
+
+```bash
+npx shadcn@latest add --help  # List available components
+npx shadcn@latest add <component-name>
+```
+
+---
+
 ## Core Components
+
+All components below are **composed from shadcn/ui** - never built from scratch.
 
 ### Layout
 
-- **AppLayout** - Sidebar navigation, topbar (upload, compare, theme), main content
+- **AppLayout** → `Sheet` (sidebar) + `Button` (nav items) + `Switch` (theme)
+- **Topbar** → `Button` group, `DropdownMenu`
 
 ### Upload Flow
 
-- **UploadDropzone** - Drag & drop JSON, validate Lighthouse format
-- **ReportLoader** - Parse JSON, call transformer, store in state
+- **UploadDropzone** → Custom (requires drag-drop logic), use `Card` + `Input`
+- **ReportLoader** → Logic only (no UI)
 
 ### Dashboard Page
 
-- **SummaryHeader** - Big score cards with delta (if comparing)
-- **MetricsSection** - Core Web Vitals cards with status colors
-- **ScoreBreakdown** - Category weights, optional radar chart
-- **IssuesSection** - Grouped by impact (High/Medium/Low)
-- **AuditExplorer** - Searchable, filterable audit table
+- **SummaryHeader** → `Card` + `Badge` composition
+- **MetricsSection** → `Card` + `Progress` + color-coded variants
+- \*\*ScoreBreakdonutChart → Recharts `PieChart` wrapped in `Card`
+- **MetricsBarChart** → Recharts `BarChart` wrapped in `Card`
+- **IssuesSection** → `Accordion` (impact groups) + `Card` (individual issues)
+- **AuditExplorer** → `Table` + `Input` (search) + `Select` (filter) + `Badge`
 
 ### Charts
 
-- **ScoreDonutChart** - Performance, SEO, Accessibility scores (Recharts PieChart)
-  - Hover: show exact score
-  - Click: filter audits by category
-- **MetricsBarChart** - Core Web Vitals with color zones
-  - Tooltip: explanation
-  - Click: scroll to related audits
-- **ImpactDistributionChart** - Pie or bar showing High/Medium/Low distribution
-- **TrendLineChart** - Timeline view (future feature)
+- **ScoreDonutChart** - Recharts PieChart in `Card` container
+- **MetricsBarChart** - Recharts BarChart with `Tooltip` overlays
+- **ImpactDistributionChart** - Recharts Pie/Bar in `Card`
+- **TrendLineChart** - Recharts LineChart (future)
 
 ### Audit Components
 
-- **IssueGroup** - Grouped by impact level
-- **AuditCard** - Title, impact badge, short description, expandable details
-  - Expanded: explanation, savings (ms/KB), link to docs
-- **AuditTable** - Sortable, expandable rows
-- **FilterBar** - Impact toggle, category select, search
+- **IssueGroup** → `Accordion` + `Badge`
+- **AuditCard** → `Card` + `Badge` + `Accordion` (expandable)
+- **AuditTable** → `Table` + `Accordion` (row expansion)
+- **FilterBar** → `Input` + `Select` + `Checkbox` + `Button`
 
 ### Compare Mode
 
-- **ComparePage** - Header, diff summary, diff charts, diff audit list
-- **DiffMetricCard** - Before vs after with status indicator
-- **DiffChart** - Before vs after bars
+- **ComparePage** → `Tabs` (switch views)
+- **DiffMetricCard** → `Card` + `Badge` (delta indicator)
+- **DiffChart** → Recharts ComposedChart (before/after bars)
 
 ---
 
@@ -168,20 +299,15 @@ const GROUPS = {
 
 ---
 
-## Adding components
-
-To add components to your app, run the following command:
+## Adding New shadcn Components
 
 ```bash
-npx shadcn@latest add button
+npx shadcn@latest add <component-name>
 ```
 
-This will place the ui components in the `components` directory.
-
-## Using components
-
-To use the components in your app, import them as follows:
+Components are installed to `components/ui/` and imported as:
 
 ```tsx
 import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 ```
