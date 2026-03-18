@@ -245,7 +245,7 @@ export function AuditTable({ audits, className }: AuditTableProps) {
                                             </AccordionItem>
                                         </Accordion>
                                     </TableCell>
-                                    <TableCell className="text-center">
+                                    <TableCell>
                                         <Badge
                                             variant={
                                                 IMPACT_COLORS[audit.impact]
@@ -257,10 +257,10 @@ export function AuditTable({ audits, className }: AuditTableProps) {
                                                 audit.impact.slice(1)}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell className="text-center">
+                                    <TableCell>
                                         {audit.score !== null ? (
                                             <span
-                                                className={`font-medium ${
+                                                className={`font-medium font-mono tabular-nums ${
                                                     audit.score >= 0.9
                                                         ? "text-green-600"
                                                         : audit.score >= 0.5
