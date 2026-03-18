@@ -37,8 +37,8 @@ const IMPACT_COLORS: Record<
     string,
     "default" | "secondary" | "destructive" | "outline" | "ghost" | "link"
 > = {
-    high: "destructive",
-    medium: "secondary",
+    high: "outline",
+    medium: "outline",
     low: "outline",
     informative: "outline",
 }
@@ -250,6 +250,13 @@ export function AuditTable({ audits, className }: AuditTableProps) {
                                             variant={
                                                 IMPACT_COLORS[audit.impact]
                                             }
+                                            className={
+                                                audit.impact === "high"
+                                                    ? "bg-red-100  border-red-200 text-red-700 dark:bg-red-900/30 dark:border-red-800 dark:text-red-500"
+                                                    : audit.impact === "medium"
+                                                      ? "bg-amber-100 border-amber-200 text-amber-700 dark:bg-amber-900/30 dark:border-amber-800 dark:text-amber-500"
+                                                      : undefined
+                                            }
                                         >
                                             {audit.impact
                                                 .charAt(0)
@@ -260,7 +267,7 @@ export function AuditTable({ audits, className }: AuditTableProps) {
                                     <TableCell>
                                         {audit.score !== null ? (
                                             <span
-                                                className={`font-medium font-mono tabular-nums ${
+                                                className={`font-mono font-medium tabular-nums ${
                                                     audit.score >= 0.9
                                                         ? "text-green-600"
                                                         : audit.score >= 0.5
