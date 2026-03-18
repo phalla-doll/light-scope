@@ -152,10 +152,12 @@ export default function DashboardPage() {
                                     />
                                 </div>
 
-                                <TopIssuesCard
-                                    issues={parsedData.topIssues}
-                                    categories={parsedData.categories}
-                                />
+                                <div className="px-4 lg:px-6">
+                                    <TopIssuesCard
+                                        issues={parsedData.topIssues}
+                                        categories={parsedData.categories}
+                                    />
+                                </div>
 
                                 <div className="px-4 lg:px-6">
                                     <h2 className="mb-4 text-lg font-semibold">
