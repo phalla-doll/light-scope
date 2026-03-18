@@ -24,23 +24,8 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
-import { Search, Filter, ChevronDown, ChevronUp } from "lucide-react"
+import { Search, Filter } from "lucide-react"
 import { type AuditItem } from "@/lib/lighthouse-parser"
-
-interface SortIconProps {
-    columnKey: keyof AuditItem
-    currentKey: keyof AuditItem
-    direction: "asc" | "desc"
-}
-
-function SortIcon({ columnKey, currentKey, direction }: SortIconProps) {
-    if (currentKey !== columnKey) return null
-    return direction === "asc" ? (
-        <ChevronUp className="ml-1 inline size-4" />
-    ) : (
-        <ChevronDown className="ml-1 inline size-4" />
-    )
-}
 
 interface AuditTableProps {
     audits: AuditItem[]
@@ -190,11 +175,6 @@ export function AuditTable({ audits, className }: AuditTableProps) {
                                     onClick={() => handleSort("title")}
                                 >
                                     Audit
-                                    <SortIcon
-                                        columnKey="title"
-                                        currentKey={sortConfig.key}
-                                        direction={sortConfig.direction}
-                                    />
                                 </button>
                             </TableHead>
                             <TableHead>
@@ -204,11 +184,6 @@ export function AuditTable({ audits, className }: AuditTableProps) {
                                     onClick={() => handleSort("category")}
                                 >
                                     Category
-                                    <SortIcon
-                                        columnKey="category"
-                                        currentKey={sortConfig.key}
-                                        direction={sortConfig.direction}
-                                    />
                                 </button>
                             </TableHead>
                             <TableHead className="text-center">
@@ -218,11 +193,6 @@ export function AuditTable({ audits, className }: AuditTableProps) {
                                     onClick={() => handleSort("impact")}
                                 >
                                     Impact
-                                    <SortIcon
-                                        columnKey="impact"
-                                        currentKey={sortConfig.key}
-                                        direction={sortConfig.direction}
-                                    />
                                 </button>
                             </TableHead>
                             <TableHead className="text-center">
@@ -232,11 +202,6 @@ export function AuditTable({ audits, className }: AuditTableProps) {
                                     onClick={() => handleSort("score")}
                                 >
                                     Score
-                                    <SortIcon
-                                        columnKey="score"
-                                        currentKey={sortConfig.key}
-                                        direction={sortConfig.direction}
-                                    />
                                 </button>
                             </TableHead>
                             <TableHead className="text-right">Value</TableHead>
@@ -265,7 +230,7 @@ export function AuditTable({ audits, className }: AuditTableProps) {
                                                 value={audit.id}
                                                 className="border-none"
                                             >
-                                                <AccordionTrigger className="hover:no-underline">
+                                                <AccordionTrigger className="hover:no-underline [&>svg]:hidden data-[state=open]:[&>svg]:hidden">
                                                     <div className="flex flex-col items-start text-left">
                                                         <span className="text-sm">
                                                             {audit.title}
